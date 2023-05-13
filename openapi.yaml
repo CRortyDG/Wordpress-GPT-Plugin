@@ -4,62 +4,90 @@ info:
   description: A plugin that allows the user to create and manage a TODO list using ChatGPT. If you do not know the user's username, ask them first before making queries to the plugin. Otherwise, use the username "global".
   version: 'v1'
 servers:
-  - url: https://ai.design.garden
+  - url: httpd://ai.design.garden
 paths:
-  /authenticate:
-    post:
-      operationId: authenticate
-      summary: Authenticate the user
-      requestBody:
+  /todos/{username}:
+    get:
+      operationId: getTodos
+      summary: Get the list of todos
+      parameters:
+      - in: path
+        name: username
+        schema:
+            type: string
         required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/AuthenticateRequest'
+        description: The name of the user.
       responses:
         "200":
           description: OK
-  /create_post:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/getTodosResponse'
     post:
-      operationId: create_post
-      summary: Create a post on the WordPress site
+      operationId: addTodo
+      summary: Add a todo to the list
+      parameters:
+      - in: path
+        name: username
+        schema:
+            type: string
+        required: true
+        description: The name of the user.
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CreatePostRequest'
+              $ref: '#/components/schemas/addTodoRequest'
+      responses:
+        "200":
+          description: OK
+    delete:
+      operationId: deleteTodo
+      summary: Delete a todo from the list
+      parameters:
+      - in: path
+        name: username
+        schema:
+            type: string
+        required: true
+        description: The name of the user.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/deleteTodoRequest'
       responses:
         "200":
           description: OK
 
 components:
   schemas:
-    AuthenticateRequest:
+    getTodosResponse:
+      type: object
+      properties:
+        todos:
+          type: array
+          items:
+            type: string
+          description: The list of todos.
+    addTodoRequest:
       type: object
       required:
-      - domain
-      - username
-      - password
+      - todo
       properties:
-        domain:
+        todo:
           type: string
-          description: The domain of the WordPress site.
-        username:
-          type: string
-          description: The username of the WordPress site.
-        password:
-          type: string
-          description: The password of the WordPress site.
-    CreatePostRequest:
+          description: The todo to add to the list.
+          required: true
+    deleteTodoRequest:
       type: object
       required:
-      - domain
-      - username
+      - todo_idx
       properties:
-        domain:
-          type: string
-          description: The domain of the WordPress site.
-        username:
-          type: string
-          description: The username of the WordPress site.
+        todo_idx:
+          type: integer
+          description: The index of the todo to delete.
+          required: true

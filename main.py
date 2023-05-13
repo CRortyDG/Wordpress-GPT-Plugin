@@ -1,44 +1,56 @@
-from quart import Quart, request
-import httpx
+import json
 
-app = Quart(__name__)
+import quart
+import quart_cors
+from quart import request
 
-@app.route("/authenticate", methods=["POST"])
-async def authenticate():
-    data = await request.get_json()
-    application_password = data.get("application_password")
-    domain = data.get("domain")
+app = quart_cors.cors(quart.Quart(__name__), allow_origin="https://chat.openai.com")
 
-    # Here you would use the application password to authenticate with Wordpress
-    # Assuming your function for this is called authenticate_with_wordpress
-    result = await authenticate_with_wordpress(application_password, domain)
+# Keep track of todo's. Does not persist if Python session is restarted.
+_TODOS = {}
 
-    if result:
-        return {"success": True}, 200
-    else:
-        return {"error": "Authentication failed"}, 400
+@app.post("/todos/<string:username>")
+async def add_todo(username):
+    request = await quart.request.get_json(force=True)
+    if username not in _TODOS:
+        _TODOS[username] = []
+    _TODOS[username].append(request["todo"])
+    return quart.Response(response='OK', status=200)
 
-@app.route('/create_post', methods=['POST'])
-async def create_post():
-    # Get the domain and username from the request
-    data = await request.json
-    domain = data.get('domain')
-    username = data.get('username')
+@app.get("/todos/<string:username>")
+async def get_todos(username):
+    return quart.Response(response=json.dumps(_TODOS.get(username, [])), status=200)
 
-    # Retrieve the password from your database (this step is not shown)
-    password = your_database.retrieve(domain, username)
+@app.delete("/todos/<string:username>")
+async def delete_todo(username):
+    request = await quart.request.get_json(force=True)
+    todo_idx = request["todo_idx"]
+    # fail silently, it's a simple plugin
+    if 0 <= todo_idx < len(_TODOS[username]):
+        _TODOS[username].pop(todo_idx)
+    return quart.Response(response='OK', status=200)
 
-    # Use the WordPress REST API to create a post
-    url = f"https://{domain}/wp-json/wp/v2/posts"
-    headers = {'Authorization': f'Bearer {password}'}
-    data = {'title': 'My Post', 'content': 'This is my post.'}
-    async with httpx.AsyncClient() as client:
-        response = await client.post(url, headers=headers, json=data)
+@app.get("/logo.png")
+async def plugin_logo():
+    filename = 'logo.png'
+    return await quart.send_file(filename, mimetype='image/png')
 
-    if response.status_code == 201:
-        return {'status': 'post created'}, 200
-    else:
-        return {'status': 'error', 'message': response.text}, 400
+@app.get("/.well-known/ai-plugin.json")
+async def plugin_manifest():
+    host = request.headers['Host']
+    with open("./.well-known/ai-plugin.json") as f:
+        text = f.read()
+        return quart.Response(text, mimetype="text/json")
+
+@app.get("/openapi.yaml")
+async def openapi_spec():
+    host = request.headers['Host']
+    with open("openapi.yaml") as f:
+        text = f.read()
+        return quart.Response(text, mimetype="text/yaml")
+
+def main():
+    app.run(debug=True, host="0.0.0.0", port=5003)
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    main()
