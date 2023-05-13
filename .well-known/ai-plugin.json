@@ -1,19 +1,28 @@
 {
-    "schema_version": "v1",
-    "name_for_human": "TODO Plugin (no auth)",
-    "name_for_model": "todo",
-    "description_for_human": "Plugin for managing a TODO list, you can add, remove and view your TODOs.",
-    "description_for_model": "Plugin for managing a TODO list, you can add, remove and view your TODOs.",
-    "auth": {
-      "type": "none"
-    },
-    "api": {
+  "schema_version": "v1",
+  "name_for_human": "Wordpress Editor",
+  "name_for_model": "WordpressEditor",
+  "description_for_human": "Plugin for managing the blog portion of a wordpress site, you can create drafts, publish posts, and edit existing posts",
+  "description_for_model": "Plugin for managing the blog portion of a wordpress site, you can create drafts, publish posts, and edit existing posts",
+  "auth": {
+      "type": "user_http",
+      "params": {
+          "http_verb": "POST",
+          "url": "https://ai.design.garden/authenticate",
+          "headers": {"Content-Type": "application/json"},
+          "body": {
+              "username": "{{username}}",
+              "password": "{{password}}",
+              "domain": "{{domain}}"
+          }
+      }
+  },
+  "api": {
       "type": "openapi",
-      "url": "http://localhost:5003/openapi.yaml",
-      "is_user_authenticated": false
-    },
-    "logo_url": "http://localhost:5003/logo.png",
-    "contact_email": "legal@example.com",
-    "legal_info_url": "http://example.com/legal"
-  }
-  
+      "url": "https://ai.design.garden/openapi.yaml",
+      "is_user_authenticated": true
+  },
+  "logo_url": "https://design.garden/wp-content/uploads/2022/01/DG-Orange-128x128-1.png",
+  "contact_email": "support@design.garden",
+  "legal_info_url": "http://desgin.garden/contact"
+}
