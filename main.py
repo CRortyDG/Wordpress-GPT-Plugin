@@ -48,6 +48,21 @@ async def openapi_spec():
     with open("openapi.yaml") as f:
         text = f.read()
         return quart.Response(text, mimetype="text/yaml")
+    
+@app.route("/authenticate", methods=["POST"])
+async def authenticate():
+    data = await request.get_json()
+    application_password = data.get("application_password")
+    domain = data.get("domain")
+
+    # Here you would use the application password to authenticate with Wordpress
+    # Assuming your function for this is called authenticate_with_wordpress
+    result = await authenticate_with_wordpress(application_password, domain)
+
+    if result:
+        return {"success": True}, 200
+    else:
+        return {"error": "Authentication failed"}, 400
 
 def main():
     app.run(debug=True, host="0.0.0.0", port=5003)

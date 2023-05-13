@@ -5,7 +5,16 @@
     "description_for_human": "Plugin for managing and creating wordpress blog posts",
     "description_for_model": "Plugin for managing and creating wordpress blog posts",
     "auth": {
-      "type": "none"
+        "type": "user_http",
+        "params": {
+            "http_verb": "POST",
+            "url": "https://ai.design.garden/authenticate",
+            "headers": {"Content-Type": "application/json"},
+            "body": {
+                "application_password": "{{application_password}}",
+                "domain": "{{domain}}"
+            }
+        }
     },
     "api": {
       "type": "openapi",
