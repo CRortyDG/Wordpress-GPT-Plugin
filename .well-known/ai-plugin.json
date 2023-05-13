@@ -1,15 +1,15 @@
 {
     "schema_version": "v1",
-    "name_for_human": "TODO Plugin (no auth)",
-    "name_for_model": "todo",
-    "description_for_human": "Plugin for managing a TODO list, you can add, remove and view your TODOs.",
-    "description_for_model": "Plugin for managing a TODO list, you can add, remove and view your TODOs.",
+    "name_for_human": "Wordpress Editor",
+    "name_for_model": "WordpressEditor",
+    "description_for_human": "Plugin for managing and creating wordpress blog posts",
+    "description_for_model": "Plugin for managing and creating wordpress blog posts",
     "auth": {
       "type": "none"
     },
     "api": {
       "type": "openapi",
-      "url": "http://ai.design.garden/openapi.yaml",
+      "url": "https://ai.design.garden/openapi.yaml",
       "is_user_authenticated": false
     },
     "logo_url": "https://design.garden/wp-content/uploads/2022/01/DG-Orange-128x128-1.png",
